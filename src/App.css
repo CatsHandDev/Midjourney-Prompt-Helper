@@ -205,9 +205,95 @@ input:checked+.slider:before {
   opacity: 0.5;
 }
 
+.accordion-item {
+  margin-top: 1rem;
+  border-top: 1px solid #e0e0e0;
+}
+
+.accordion-title {
+  width: 100%;
+  background: none;
+  border: none;
+  padding: 0.75rem 0.25rem;
+  text-align: left;
+  font-size: 0.9rem;
+  font-weight: bold;
+  color: #555;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.accordion-title:hover {
+  color: #000;
+}
+
+.accordion-icon {
+  display: flex;
+  justify-content: start;
+  align-items: center;
+  transition: transform 0.2s ease-in-out;
+  transform-origin: center;
+}
+
+.accordion-icon.open {
+  transform: rotateX(180deg);
+}
+
+.accordion-content {
+  padding: 0.5rem 0.25rem;
+  max-height: 250px;
+  overflow-y: auto;
+}
+
+
+.prompt-example-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+}
+
+.prompt-example-table td {
+  padding: 0.75rem;
+  border-bottom: 1px solid #eee;
+  text-align: left;
+  vertical-align: middle;
+}
+
+.prompt-example-table tr:last-child td {
+  border-bottom: none;
+}
+
+.add-button-cell {
+  width: 40px;
+}
+
+.add-button-cell button {
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border-radius: 50%;
+  border: 1px solid #ccc;
+  background-color: #f8f8f8;
+  color: #555;
+  font-size: 1.2rem;
+  line-height: 1;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.add-button-cell button:hover {
+  background-color: #e8e8e8;
+  border-color: #aaa;
+}
+
 .scroll-buttons-container {
   position: fixed;
-  bottom: 12rem;
+  bottom: 2rem;
   right: 2rem;
   display: flex;
   flex-direction: column;

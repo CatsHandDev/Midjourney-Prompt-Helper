@@ -1,132 +1,55 @@
 import React, { useState, useEffect } from 'react';
+// ★ FC型をインポート
+import type { FC } from 'react';
 import { FiCpu, FiCopy, FiCheck } from 'react-icons/fi';
 import './App.css';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
+import Accordion from './components/Accordion';
+import PromptExampleTable from './components/PromptExampleTable';
+import {
+  styleExamples,
+  contextCompositionExamples,
+  contextColorExamples,
+  contextLightingExamples
+} from './data/promptExamples';
 
-// ★ 1. 各アイテムの型を定義
+// ★ 1. value と placeholder をオプショナルに変更
 interface Item {
   id: string;
   title: string;
   description: string;
-  value: string;
-  placeholder: string;
+  value?: string;         // '?' を追加
+  placeholder?: string;   // '?' を追加
   isEnabled: boolean;
   layout: 'full' | 'auto';
   type?: 'number' | 'toggle-only' | 'text';
 }
 
 const initialItems: Item[] = [
-  {
-    id: 'subject',
-    title: '【主題】Subject',
-    description: '描きたいものの中心となる要素を入力します。',
-    value: '',
-    placeholder: '例: a beautiful princess, a robot cat',
-    isEnabled: true,
-    layout: 'full',
-  },
-  {
-    id: 'style',
-    title: '【画風】Style',
-    description: '画像全体のスタイルや画家の名前などを指定します。',
-    value: '',
-    placeholder: '例: by Studio Ghibli, watercolor painting',
-    isEnabled: true,
-    layout: 'full',
-  },
-  {
-    id: 'context',
-    title: '【補足】Context & Details',
-    description: '背景、光、色、構図などの詳細情報を追加します。',
-    value: '',
-    placeholder: '例: in a sun-drenched meadow, cinematic lighting',
-    isEnabled: true,
-    layout: 'full',
-  },
-  {
-    id: 'aspect',
-    title: '--ar (アスペクト比)',
-    description: '画像の縦横比',
-    value: '',
-    placeholder: '16:9',
-    isEnabled: false,
-    layout: 'auto',
-  },
-  {
-    id: 'version',
-    title: '--v (バージョン)',
-    description: 'Midjourneyのバージョン',
-    value: '',
-    placeholder: '7',
-    isEnabled: false,
-    layout: 'auto',
-  },
-  {
-    id: 'stylize',
-    title: '--s (様式化)',
-    description: 'AIの芸術性 (0-1000)',
-    value: '',
-    placeholder: '100',
-    isEnabled: false,
-    layout: 'auto',
-    type: 'number',
-  },
-  {
-    id: 'styleRaw',
-    title: '--style raw',
-    description: 'AIの味付けを抑制',
-    isEnabled: false,
-    layout: 'auto',
-    type: 'toggle-only',
-    value: '',
-    placeholder: ''
-  },
-  {
-    id: 'no',
-    title: '--no (ネガティブプロンプト)',
-    description: '画像に含めてほしくない要素を指定します。',
-    value: '',
-    placeholder: '例: people, text, watermark',
-    isEnabled: false,
-    layout: 'full',
-  },
-  {
-    id: 'cref',
-    title: '--cref (キャラクター参照)',
-    description: '指定URLの画像の「キャラクター」に似せます。',
-    value: '',
-    placeholder: '画像のURLを貼り付け',
-    isEnabled: false,
-    layout: 'full',
-  },
-  {
-    id: 'sref',
-    title: '--sref (スタイル参照)',
-    description: '指定URLの画像の「画風」に似せます。',
-    value: '',
-    placeholder: '画像のURLを貼り付け',
-    isEnabled: false,
-    layout: 'full',
-  },
+  // ... (オブジェクトの定義は変更なし)
+  { id: 'subject', title: '【主題】Subject', description: '描きたいものの中心となる要素を入力します。', value: '', placeholder: '例: a beautiful princess, a robot cat', isEnabled: true, layout: 'full' },
+  { id: 'style', title: '【画風】Style', description: '画像全体のスタイルや画家の名前などを指定します。', value: '', placeholder: '例: by Studio Ghibli, watercolor painting', isEnabled: true, layout: 'full' },
+  { id: 'context', title: '【補足】Context & Details', description: '背景、光、色、構図などの詳細情報を追加します。', value: '', placeholder: '例: in a sun-drenched meadow, cinematic lighting', isEnabled: true, layout: 'full' },
+  { id: 'aspect', title: '--ar (アスペクト比)', description: '画像の縦横比', value: '', placeholder: '16:9', isEnabled: false, layout: 'auto' },
+  { id: 'version', title: '--v (バージョン)', description: 'Midjourneyのバージョン', value: '', placeholder: '7', isEnabled: false, layout: 'auto' },
+  { id: 'stylize', title: '--s (様式化)', description: 'AIの芸術性 (0-1000)', value: '', placeholder: '100', isEnabled: false, layout: 'auto', type: 'number' },
+  // このオブジェクトに value と placeholder がなくてもエラーにならなくなる
+  { id: 'styleRaw', title: '--style raw', description: 'AIの味付けを抑制', isEnabled: false, layout: 'auto', type: 'toggle-only' },
+  { id: 'no', title: '--no (ネガティブプロンプト)', description: '画像に含めてほしくない要素を指定します。', value: '', placeholder: '例: people, text, watermark', isEnabled: false, layout: 'full' },
+  { id: 'cref', title: '--cref (キャラクター参照)', description: '指定URLの画像の「キャラクター」に似せます。', value: '', placeholder: '画像のURLを貼り付け', isEnabled: false, layout: 'full' },
+  { id: 'sref', title: '--sref (スタイル参照)', description: '指定URLの画像の「画風」に似せます。', value: '', placeholder: '画像のURLを貼り付け', isEnabled: false, layout: 'full' },
 ];
 
-
-function App() {
-  // ★ 2. Stateに型を適用
+// ★ 2. 関数の型を FC に変更
+const App: FC = () => {
   const [items, setItems] = useState<Item[]>(initialItems);
   const [generatedPrompt, setGeneratedPrompt] = useState<string>('');
   const [isCopied, setIsCopied] = useState<boolean>(false);
   const [showScrollButtons, setShowScrollButtons] = useState<boolean>(false);
 
   useEffect(() => {
-    const checkScrollTop = () => {
-      if (!showScrollButtons && window.pageYOffset > 300) {
-        setShowScrollButtons(true);
-      } else if (showScrollButtons && window.pageYOffset <= 300) {
-        setShowScrollButtons(false);
-      }
-    };
+    const checkScrollTop = () => { if (!showScrollButtons && window.pageYOffset > 300) { setShowScrollButtons(true); } else if (showScrollButtons && window.pageYOffset <= 300) { setShowScrollButtons(false); } };
     window.addEventListener('scroll', checkScrollTop);
     return () => window.removeEventListener('scroll', checkScrollTop);
   }, [showScrollButtons]);
@@ -135,10 +58,8 @@ function App() {
     const parts: string[] = [];
     items.forEach(item => {
       if (!item.isEnabled) return;
-      if (item.type === 'toggle-only') {
-        parts.push(`--style raw`);
-        return;
-      }
+      if (item.type === 'toggle-only') { parts.push(`--style raw`); return; }
+      // ★ 3. value が存在するかチェック
       if (item.value) {
         switch (item.id) {
           case 'aspect': parts.push(`--ar ${item.value}`); break;
@@ -152,17 +73,25 @@ function App() {
     setGeneratedPrompt(parts.join(', '));
   }, [items]);
 
-  // ★ 3. 関数の引数に型を適用
   const handleValueChange = (id: string, newValue: string): void => {
-    setItems(currentItems => currentItems.map(item =>
-      item.id === id ? { ...item, value: newValue } : item
-    ));
+    setItems(currentItems => currentItems.map(item => item.id === id ? { ...item, value: newValue } : item));
   };
 
   const handleToggle = (id: string): void => {
-    setItems(currentItems => currentItems.map(item =>
-      item.id === id ? { ...item, isEnabled: !item.isEnabled } : item
-    ));
+    setItems(currentItems => currentItems.map(item => item.id === id ? { ...item, isEnabled: !item.isEnabled } : item));
+  };
+
+  const handleAddPrompt = (itemId: 'style' | 'context', promptToAdd: string): void => {
+    setItems(currentItems =>
+      currentItems.map(item => {
+        if (item.id === itemId) {
+          // ★ 4. value が存在するかチェック
+          const newValue = item.value ? `${item.value}, ${promptToAdd}` : promptToAdd;
+          return { ...item, value: newValue };
+        }
+        return item;
+      })
+    );
   };
 
   const copyToClipboard = (): void => {
@@ -179,10 +108,7 @@ function App() {
   return (
     <div className="container">
       <header>
-        <div className="title-wrapper">
-          <FiCpu size={32} />
-          <h1>Midjourney Prompt Helper</h1>
-        </div>
+        <div className="title-wrapper"><FiCpu size={32} /><h1>Midjourney Prompt Helper</h1></div>
         <p>各項目を編集して、オリジナルのプロンプトを作成しましょう。</p>
       </header>
 
@@ -205,13 +131,32 @@ function App() {
               {item.type !== 'toggle-only' && (
                 <input
                   type={item.type || 'text'}
-                  // ★ 4. イベントハンドラのイベントオブジェクトに型を適用
                   onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleValueChange(item.id, e.target.value)}
-                  value={item.value}
+                  // ★ 5. value が undefined の場合のフォールバックを追加
+                  value={item.value || ''}
                   disabled={!item.isEnabled}
                   placeholder={item.placeholder}
                   className="item-input"
                 />
+              )}
+
+              {item.id === 'style' && (
+                <Accordion title="プロンプトの例を見る">
+                  <PromptExampleTable items={styleExamples} onAdd={(prompt) => handleAddPrompt('style', prompt)} />
+                </Accordion>
+              )}
+              {item.id === 'context' && (
+                <>
+                  <Accordion title="構図・アングルの例">
+                    <PromptExampleTable items={contextCompositionExamples} onAdd={(prompt) => handleAddPrompt('context', prompt)} />
+                  </Accordion>
+                  <Accordion title="色調の例">
+                    <PromptExampleTable items={contextColorExamples} onAdd={(prompt) => handleAddPrompt('context', prompt)} />
+                  </Accordion>
+                  <Accordion title="照明の例">
+                    <PromptExampleTable items={contextLightingExamples} onAdd={(prompt) => handleAddPrompt('context', prompt)} />
+                  </Accordion>
+                </>
               )}
             </div>
           </div>
@@ -221,23 +166,12 @@ function App() {
       <div className="output-area">
         <h2>生成されたプロンプト</h2>
         <div className="output-wrapper">
-          <textarea
-            value={generatedPrompt}
-            readOnly
-            rows={5}
-            placeholder="ここにプロンプトが生成されます..."
-          />
-          <button
-            onClick={copyToClipboard}
-            className={`copy-button-icon ${isCopied ? 'copied' : ''}`}
-            disabled={!generatedPrompt || isCopied}
-            title="プロンプトをコピー"
-          >
+          <textarea value={generatedPrompt} readOnly rows={5} placeholder="ここにプロンプトが生成されます..." />
+          <button onClick={copyToClipboard} className={`copy-button-icon ${isCopied ? 'copied' : ''}`} disabled={!generatedPrompt || isCopied} title="プロンプトをコピー">
             {isCopied ? <FiCheck /> : <FiCopy />}
           </button>
         </div>
       </div>
-
       {showScrollButtons && (
         <div className="scroll-buttons-container">
           <button onClick={scrollToTop} title="一番上へ"><KeyboardArrowUpIcon /></button>
@@ -246,6 +180,6 @@ function App() {
       )}
     </div>
   );
-}
+};
 
 export default App;
