@@ -7,6 +7,7 @@ export interface ExampleItem {
 export const styleExamples: ExampleItem[] = [
   { prompt: 'realism', description: 'リアリティのある' },
   { prompt: 'ultra-realistic photograph', description: 'リアルな写真のような' },
+  { prompt: 'HD quality', description: 'HD画質感' },
   { prompt: 'polaroid photograph', description: 'レトロ風' },
   { prompt: 'vintage photograph', description: 'ヴィンテージ風' },
   { prompt: 'pencil sketch', description: '鉛筆画風' },
@@ -42,6 +43,7 @@ export const contextCompositionExamples: ExampleItem[] = [
   { prompt: 'panorama', description: 'パノラマ' },
   { prompt: 'long shot', description: '遠景' },
   { prompt: 'fisheye lens', description: '魚眼レンズ' },
+  { prompt: '24mm lens', description: '広角レンズ' },
 ];
 
 // Context & Details の例 (色調)
@@ -62,4 +64,5 @@ export const contextLightingExamples: ExampleItem[] = [
   { prompt: 'backlighting', description: '逆光' },
   { prompt: 'spotlight', description: 'スポットライト' },
   { prompt: 'stage lights', description: 'ステージライト' },
+  { prompt: 'f/2.8', description: 'レンズの明るさ' },
 ];
